@@ -3,6 +3,7 @@ import {useState, useEffect} from "react";
 import axios from "axios";
 import Container from "react-bootstrap/Container";
 
+import Form from "./components/Form";
 
 function App() {
 
@@ -11,11 +12,6 @@ function App() {
     const [query, setQuery] = useState("MIT");
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
-    function onSubmit(event) {
-        setUrl(`https://hn.algolia.com/api/v1/search?query=${query}`);
-        event.preventDefault();
-    }
 
     useEffect( () => {
         async function fetchData() {
@@ -34,16 +30,8 @@ function App() {
 
     return (
         <Container>
-            <form onSubmit={onSubmit}>
-              <input
-                type="text"
-                value={query}
-                onChange={event => setQuery(event.target.value)}
-              />
-              <button
-                  type="submit"
-              >Search</button>
-            </form>
+            <Form setQuery={setQuery} query={query} setUrl={setUrl} />
+
             {isError && <div>something went wrong</div>}
             {isLoading ?
                 (<div>Loading...</div>) : (
