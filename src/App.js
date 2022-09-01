@@ -1,25 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import {useState, useEffect} from "react";
+
+import axios from "axios";
+import Container from "react-bootstrap/Container";
+
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+    const [data, setData] = useState({ hits: []});
+    const [url, setUrl] = useState("https://hn.algolia.com/api/v1/search?query=MIT");
+    const [query, setQuery] = useState("MIT");
+    const [isError, setIsError] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    function onSubmit(event) {
+        setUrl(`https://hn.algolia.com/api/v1/search?query=${query}`);
+        event.preventDefault();
+    }
+
+    useEffect( () => {
+        async function fetchData() {
+            setIsLoading(true);
+            try {
+                const result = await axios(url);
+                setData(result.data);
+            } catch (error) {
+                setIsError(true);
+            }
+            setIsLoading(false);
+        }
+
+        fetchData();
+    }, [url])
+
+    return (
+        <Container>
+            <form onSubmit={onSubmit}>
+              <input
+                type="text"
+                value={query}
+                onChange={event => setQuery(event.target.value)}
+              />
+              <button
+                  type="submit"
+              >Search</button>
+            </form>
+            {isError && <div>something went wrong</div>}
+            {isLoading ?
+                (<div>Loading...</div>) : (
+                    <ul>
+                        {data.hits.map(item => (
+                            <li key={item.objectID}>
+                                <a href={item.url}>{item.title}</a>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+        </Container>
+      );
 }
 
 export default App;
